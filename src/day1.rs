@@ -5,9 +5,16 @@ use std::str::FromStr;
 
 #[aoc(day1, part1)]
 pub fn part1(input: &str) -> u32 {
-    let result: Result<u32> = get_blocks_of_calories(input)
-        .and_then(|blocks| get_max_block_of_calories(blocks.as_slice()));
-    result.unwrap_or_default()
+    get_blocks_of_calories(input)
+        .and_then(|blocks| get_max_block_of_calories(blocks.as_slice()))
+        .unwrap_or_default()
+}
+
+#[aoc(day1, part2)]
+pub fn part2(input: &str) -> u32 {
+    get_blocks_of_calories(input)
+        .and_then(|mut blocks| get_top3_block_of_calories_sum(blocks.as_mut_slice()))
+        .unwrap_or_default()
 }
 
 fn get_blocks_of_calories(text: &str) -> Result<Vec<u32>> {
@@ -35,4 +42,23 @@ fn get_max_block_of_calories(blocks: &[u32]) -> Result<u32> {
         .max()
         .map(ToOwned::to_owned)
         .ok_or_else(|| eyre!("Couldn't get the max calorie block."))
+}
+
+fn get_top3_block_of_calories_sum(blocks: &mut [u32]) -> Result<u32> {
+    blocks.sort_unstable();
+    Ok(blocks.iter().rev().take(3).sum::<u32>())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_get_top3_block_of_calories_sum() {
+        let mut input_blocks: Vec<u32> = vec![14, 56, 2, 100, 70];
+        let expected_sum: u32 = 100 + 70 + 56;
+
+        let output_sum = get_top3_block_of_calories_sum(input_blocks.as_mut_slice());
+
+        assert_eq!(output_sum.unwrap(), expected_sum);
+    }
 }
