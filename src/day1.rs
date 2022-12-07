@@ -4,17 +4,25 @@ use std::borrow::ToOwned;
 use std::str::FromStr;
 
 #[aoc(day1, part1)]
-pub fn part1(input: &str) -> u32 {
-    get_blocks_of_calories(input)
-        .and_then(|blocks| get_max_block_of_calories(blocks.as_slice()))
-        .unwrap_or_default()
+pub fn part1(input: &str) -> String {
+    let result = get_blocks_of_calories(input)
+        .and_then(|blocks| get_max_block_of_calories(blocks.as_slice()));
+
+    match result {
+        Ok(r) => r.to_string(),
+        Err(e) => e.to_string(),
+    }
 }
 
 #[aoc(day1, part2)]
-pub fn part2(input: &str) -> u32 {
-    get_blocks_of_calories(input)
-        .and_then(|mut blocks| get_top3_block_of_calories_sum(blocks.as_mut_slice()))
-        .unwrap_or_default()
+pub fn part2(input: &str) -> String {
+    let result = get_blocks_of_calories(input)
+        .and_then(|mut blocks| get_top3_block_of_calories_sum(blocks.as_mut_slice()));
+
+    match result {
+        Ok(r) => r.to_string(),
+        Err(e) => e.to_string(),
+    }
 }
 
 fn get_blocks_of_calories(text: &str) -> Result<Vec<u32>> {

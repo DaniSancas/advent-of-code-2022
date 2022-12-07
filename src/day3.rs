@@ -5,17 +5,25 @@ const CHAR_OFFSET: u32 = 9;
 const UPPERCASE_OFFSET: u32 = 26;
 
 #[aoc(day3, part1)]
-pub fn part1(input: &str) -> u32 {
-    get_rucksack_items_part1(input)
-        .and_then(|items| get_total_priority_from_items(&items))
-        .unwrap_or_default()
+pub fn part1(input: &str) -> String {
+    let result =
+        get_rucksack_items_part1(input).and_then(|items| get_total_priority_from_items(&items));
+
+    match result {
+        Ok(r) => r.to_string(),
+        Err(e) => e.to_string(),
+    }
 }
 
 #[aoc(day3, part2)]
-pub fn part2(input: &str) -> u32 {
-    get_rucksack_items_part2(input)
-        .and_then(|items| get_total_priority_from_items(&items))
-        .unwrap_or_default()
+pub fn part2(input: &str) -> String {
+    let result =
+        get_rucksack_items_part2(input).and_then(|items| get_total_priority_from_items(&items));
+
+    match result {
+        Ok(r) => r.to_string(),
+        Err(e) => e.to_string(),
+    }
 }
 
 fn get_rucksack_items_part1(text: &str) -> Result<Vec<char>> {

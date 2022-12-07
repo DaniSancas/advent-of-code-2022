@@ -10,16 +10,25 @@ struct Ranges {
 }
 
 #[aoc(day4, part1)]
-pub fn part1(input: &str) -> u32 {
-    compile_regex(input, get_ranges_fully_contained).unwrap_or_default()
+pub fn part1(input: &str) -> String {
+    match compile_regex(input, get_ranges_fully_contained) {
+        Ok(r) => r.to_string(),
+        Err(e) => e.to_string(),
+    }
 }
 
 #[aoc(day4, part2)]
-pub fn part2(input: &str) -> u32 {
-    compile_regex(input, get_ranges_partially_contained).unwrap_or_default()
+pub fn part2(input: &str) -> String {
+    match compile_regex(input, get_ranges_partially_contained) {
+        Ok(r) => r.to_string(),
+        Err(e) => e.to_string(),
+    }
 }
 
-fn compile_regex(input: &str, ranges_contained_function: fn(Result<Ranges>) -> Result<u32>) -> Result<u32> {
+fn compile_regex(
+    input: &str,
+    ranges_contained_function: fn(Result<Ranges>) -> Result<u32>,
+) -> Result<u32> {
     let regex = Regex::new(r"(\d+)-(\d+),(\d+)-(\d+)")?;
     let total_ranges = regex
         .captures_iter(input)
@@ -74,7 +83,7 @@ mod tests {
     fn test_part1() {
         let input = "2-4,6-8\n2-3,4-5\n5-7,7-9\n2-8,3-7\n6-6,4-6\n2-6,4-8\n50-60,51-59\n";
 
-        let expected = 3;
+        let expected = 3.to_string();
 
         let output = part1(input);
 
