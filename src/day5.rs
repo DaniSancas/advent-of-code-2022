@@ -10,7 +10,20 @@ const REGEX: &str = r"move (\d+) from (\d+) to (\d+)";
 pub fn part1(input: &str) -> String {
     let result = get_crates_number_of_stacks_and_moves(input)
         .and_then(|(crates, number_of_stacks, moves)| fill_stacks(crates, number_of_stacks, moves))
-        .and_then(|(list_of_stacks, moves)| follow_moving_instructions(list_of_stacks, moves))
+        .and_then(|(list_of_stacks, moves)| follow_moving_instructions_part1(list_of_stacks, moves))
+        .and_then(get_last_crate_of_each_stack);
+
+    match result {
+        Ok(r) => r,
+        Err(e) => e.to_string(),
+    }
+}
+
+#[aoc(day5, part2)]
+pub fn part2(input: &str) -> String {
+    let result = get_crates_number_of_stacks_and_moves(input)
+        .and_then(|(crates, number_of_stacks, moves)| fill_stacks(crates, number_of_stacks, moves))
+        .and_then(|(list_of_stacks, moves)| follow_moving_instructions_part2(list_of_stacks, moves))
         .and_then(get_last_crate_of_each_stack);
 
     match result {
@@ -65,7 +78,7 @@ fn fill_stacks<'a>(
     Ok((list_of_stacks, moves))
 }
 
-fn follow_moving_instructions(
+fn follow_moving_instructions_part1(
     mut list_of_stacks: Vec<VecDeque<char>>,
     moves: &str,
 ) -> Result<Vec<VecDeque<char>>> {
@@ -87,6 +100,45 @@ fn follow_moving_instructions(
                 .as_mut_slice()
                 .get_mut(destination)
                 .ok_or_else(|| eyre!("Couldn't get destination stack."))?;
+
+            destination_stack.push_back(moved_crate);
+        }
+    }
+
+    Ok(list_of_stacks)
+}
+
+fn follow_moving_instructions_part2(
+    mut list_of_stacks: Vec<VecDeque<char>>,
+    moves: &str,
+) -> Result<Vec<VecDeque<char>>> {
+    let regex = Regex::new(REGEX)?;
+    for line in moves.lines() {
+        let (number_of_movements, origin, destination) = parse_instructions(line, &regex)?;
+
+        let origin_stack: &mut VecDeque<char> = list_of_stacks
+            .as_mut_slice()
+            .get_mut(origin)
+            .ok_or_else(|| eyre!("Couldn't get origin stack."))?;
+
+        let mut crate_movement_queue: VecDeque<char> = VecDeque::new();
+
+        for _ in 0..number_of_movements {
+            let moved_crate = origin_stack
+                .pop_back()
+                .ok_or_else(|| eyre!("Couldn't pop crate from origin stack."))?;
+            crate_movement_queue.push_back(moved_crate);
+        }
+
+        let destination_stack: &mut VecDeque<char> = list_of_stacks
+            .as_mut_slice()
+            .get_mut(destination)
+            .ok_or_else(|| eyre!("Couldn't get destination stack."))?;
+
+        for _ in 0..number_of_movements {
+            let moved_crate = crate_movement_queue
+                .pop_back()
+                .ok_or_else(|| eyre!("Couldn't pop crate from intermediate stack."))?;
 
             destination_stack.push_back(moved_crate);
         }
@@ -168,7 +220,7 @@ mod tests {
     }
 
     #[test]
-    fn test_follow_moving_instructions() {
+    fn test_follow_moving_instructions_part1() {
         let list_of_stacks = vec![
             VecDeque::from(['Z', 'N']),
             VecDeque::from(['M', 'C', 'D']),
@@ -177,13 +229,29 @@ mod tests {
         let moves: &str =
             "move 1 from 2 to 1\nmove 3 from 1 to 3\nmove 2 from 2 to 1\nmove 1 from 1 to 2\n";
 
-        let output = follow_moving_instructions(list_of_stacks, moves).unwrap();
+        let output = follow_moving_instructions_part1(list_of_stacks, moves).unwrap();
 
         assert_eq!(output[0], VecDeque::from(['C']));
         assert_eq!(output[1], VecDeque::from(['M']));
         assert_eq!(output[2], VecDeque::from(['P', 'D', 'N', 'Z']));
     }
 
+    #[test]
+    fn test_follow_moving_instructions_part2() {
+        let list_of_stacks = vec![
+            VecDeque::from(['Z', 'N']),
+            VecDeque::from(['M', 'C', 'D']),
+            VecDeque::from(['P']),
+        ];
+        let moves: &str =
+            "move 1 from 2 to 1\nmove 3 from 1 to 3\nmove 2 from 2 to 1\nmove 1 from 1 to 2\n";
+
+        let output = follow_moving_instructions_part2(list_of_stacks, moves).unwrap();
+
+        assert_eq!(output[0], VecDeque::from(['M']));
+        assert_eq!(output[1], VecDeque::from(['C']));
+        assert_eq!(output[2], VecDeque::from(['P', 'Z', 'N', 'D']));
+    }
     #[test]
     fn test_get_last_crate_of_each_stack() {
         let list_of_stacks: Vec<VecDeque<char>> = vec![
