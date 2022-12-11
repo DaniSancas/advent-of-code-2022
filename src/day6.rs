@@ -5,14 +5,21 @@ use eyre::{eyre, Result};
 
 #[aoc(day6, part1)]
 pub fn part1(input: &str) -> String {
-    match get_first_marker(input) {
+    match get_first_marker(input, 4) {
         Ok(r) => r.to_string(),
         Err(e) => e.to_string(),
     }
 }
 
-fn get_first_marker(line: &str) -> Result<u32> {
-    let size: usize = 4;
+#[aoc(day6, part2)]
+pub fn part2(input: &str) -> String {
+    match get_first_marker(input, 14) {
+        Ok(r) => r.to_string(),
+        Err(e) => e.to_string(),
+    }
+}
+
+fn get_first_marker(line: &str, size: usize) -> Result<u32> {
     let result = Err(eyre!("Couldn't get first marker."));
 
     for slice in 0..line.len() {
@@ -45,14 +52,14 @@ mod tests {
     #[case("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 10)]
     #[case("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 11)]
     #[case("zcfw", 4)]
-    fn test_get_first_marker(#[case] line: &str, #[case] expected: u32) {
-        assert_eq!(get_first_marker(line).unwrap(), expected)
+    fn test_get_first_marker_part1(#[case] line: &str, #[case] expected: u32) {
+        assert_eq!(get_first_marker(line, 4).unwrap(), expected)
     }
 
     #[rstest]
     #[case("zcfz")]
     #[case("zcf")]
-    fn test_get_first_marker_fail(#[case] line: &str) {
-        assert!(get_first_marker(line).is_err())
+    fn test_get_first_marker_fail_part1(#[case] line: &str) {
+        assert!(get_first_marker(line, 4).is_err())
     }
 }
